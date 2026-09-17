@@ -25,21 +25,9 @@ async function loadJSON(path) {
   return r.json();
 }
 
-// GitHub live sync: stars + push date + description fallback.
-// Updates on every page load without redeploying. Falls back to saved data on rate-limit/failure.
-async function syncGithub(repo) {
-  try {
-    const r = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${repo}`);
-    if (!r.ok) throw new Error("gh " + r.status);
-    const d = await r.json();
-    return {
-      stars: d.stargazers_count ?? null,
-      pushed: d.pushed_at ? d.pushed_at.slice(0, 10) : null,
-      ghDesc: d.description || null,
-      url: d.html_url,
-    };
-  } catch { return { stars: null, pushed: null, ghDesc: null, url: `https://github.com/${GITHUB_USER}/${repo}` }; }
-}
+// GitHub live sync: one repos call feeds stars, push dates, descriptions,
+// hero stats and the auto "More from GitHub" grid. Falls back to saved
+// data when the API is rate-limited or unreachable.
 
 function projCard(p, gh) {
   const stars = gh.stars !== null ? `⭐ ${gh.stars}` : "⭐ —";
@@ -136,25 +124,57 @@ async function init() {
         || `<span class="chip">Add your profile links in data/dsa.json</span>`;
     }
 
-    // Projects + GitHub auto-sync
+    // Projects + GitHub auto-sync (single API call, easy on rate limits).
     status.textContent = "Syncing live data from GitHub…";
-    const enriched = await Promise.all((pdata.projects || []).map(async p => ({ p, gh: await syncGithub(p.repo) })));
-    const liveCount = enriched.filter(e => e.gh.stars !== null).length;
-    ALL_PROJECTS = enriched;
+    let ghRepos = [];
+    try {
+      const rres = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=updated`);
+      if (!rres.ok) throw new Error("gh repos " + rres.status);
+      ghRepos = await rres.json();
+    } catch { /* enrich() falls back to saved data below */ }
+    const ghMap = Object.fromEntries(ghRepos.map(r => [(r.name || "").toLowerCase(), r]));
+    const enrich = p => {
+      const r = ghMap[p.repo.toLowerCase()];
+      return r
+        ? { stars: r.stargazers_count ?? null, pushed: (r.pushed_at || "").slice(0, 10) || null, ghDesc: r.description || null, url: r.html_url }
+        : { stars: null, pushed: null, ghDesc: null, url: `https://github.com/${GITHUB_USER}/${p.repo}` };
+    };
+    ALL_PROJECTS = (pdata.projects || []).map(p => ({ p, gh: enrich(p) }));
     renderProjects();
+    const liveCount = ALL_PROJECTS.filter(e => e.gh.stars !== null).length;
     status.textContent = liveCount > 0
-      ? `Live from GitHub (${liveCount}/${enriched.length} synced)`
+      ? `Live from GitHub (${liveCount}/${ALL_PROJECTS.length} synced)`
       : "Showing saved data — GitHub API is busy right now";
     status.className = "sync " + (liveCount > 0 ? "ok" : "warn");
 
-    // Hero stats: live public-repo count + local project/demo counts.
+    // Hero stats: live repo count + local project/demo counts.
     try {
-      const ures = await fetch(`https://api.github.com/users/${GITHUB_USER}`);
-      const repos = ures.ok ? (await ures.json()).public_repos : "—";
       const demos = ALL_PROJECTS.filter(e => e.p.demoUrl).length;
       document.getElementById("heroStats").innerHTML =
-        `<div><b>${repos}</b><span>Public repos</span></div><div><b>${ALL_PROJECTS.length}</b><span>Featured projects</span></div><div><b>${demos}</b><span>Live demos</span></div>`;
-    } catch { /* keep the hero clean if the API fails */ }
+        `<div><b>${ghRepos.length || "—"}</b><span>Public repos</span></div><div><b>${ALL_PROJECTS.length}</b><span>Featured projects</span></div><div><b>${demos}</b><span>Live demos</span></div>`;
+    } catch { /* keep the hero clean if rendering fails */ }
+
+    // Auto "More from GitHub": every other public repo, newest first.
+    // New repos appear here on their own — no site edits needed.
+    try {
+      const featured = new Set(ALL_PROJECTS.map(e => e.p.repo.toLowerCase()));
+      featured.add("portfolio");
+      featured.add(GITHUB_USER.toLowerCase());
+      const rest = ghRepos
+        .filter(r => !r.fork && !featured.has((r.name || "").toLowerCase()))
+        .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+      document.getElementById("autoGrid").innerHTML = rest.map(r => `
+        <article class="proj reveal show">
+          <div class="proj-top"><span class="stars">⭐ ${r.stargazers_count ?? 0}</span><span class="push">${(r.pushed_at || "").slice(0, 10)}</span></div>
+          <h3>${r.name}</h3>
+          <p class="desc">${r.description || "No description yet."}</p>
+          <div class="tech">${r.language ? `<span>${r.language}</span>` : ""}</div>
+          <div class="proj-links"><a href="${r.html_url}" target="_blank" rel="noopener">GitHub ↗</a></div>
+        </article>`).join("") || `<p class="lede">Everything is featured above.</p>`;
+      const autoStatus = document.getElementById("autoStatus");
+      autoStatus.textContent = ghRepos.length ? `Auto-synced (${rest.length} repos)` : "GitHub API is busy right now";
+      autoStatus.className = "sync " + (ghRepos.length ? "ok" : "warn");
+    } catch { /* grid simply stays empty */ }
 
     // Reveal animation
     const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("show")), { threshold: .1 });
