@@ -132,6 +132,15 @@ async function init() {
       : "Showing saved data — GitHub API is busy right now";
     status.className = "sync " + (liveCount > 0 ? "ok" : "warn");
 
+    // Hero stats: live public-repo count + local project/demo counts.
+    try {
+      const ures = await fetch(`https://api.github.com/users/${GITHUB_USER}`);
+      const repos = ures.ok ? (await ures.json()).public_repos : "—";
+      const demos = ALL_PROJECTS.filter(e => e.p.demoUrl).length;
+      document.getElementById("heroStats").innerHTML =
+        `<div><b>${repos}</b><span>Public repos</span></div><div><b>${ALL_PROJECTS.length}</b><span>Featured projects</span></div><div><b>${demos}</b><span>Live demos</span></div>`;
+    } catch { /* keep the hero clean if the API fails */ }
+
     // Reveal animation
     const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("show")), { threshold: .1 });
     document.querySelectorAll(".reveal").forEach(el => io.observe(el));

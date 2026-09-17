@@ -44,6 +44,10 @@ code{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:8px;font-fam
 .tagline{max-width:640px;margin:14px auto 0;color:var(--muted)}
 .cta{display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap}
 .hero-meta{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.stats-row{display:flex;gap:26px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.stats-row div{text-align:center}
+.stats-row b{font-size:1.3rem;display:block}
+.stats-row span{font-size:.78rem;color:var(--muted)}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:.82rem;color:var(--muted);text-decoration:none}
 .chip b{color:var(--text)}
 
