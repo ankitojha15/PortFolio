@@ -11,7 +11,7 @@ async function loadJSON(path) {
 }
 
 // GitHub live sync: stars + push date + description fallback.
-// Site redeploy ke bina update hota hai. Rate-limit/fail -> local JSON fallback.
+// Updates on every page load without redeploying. Falls back to saved data on rate-limit/failure.
 async function syncGithub(repo) {
   try {
     const r = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${repo}`);
