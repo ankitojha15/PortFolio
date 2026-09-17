@@ -1,5 +1,5 @@
 // ===== CONFIG: future scope toggles =====
-const SHOW_DSA = false; // DSA chahiye to true kar do + data/dsa.json bharo
+const SHOW_DSA = false; // Set to true to enable the DSA section (also fill in data/dsa.json)
 const GITHUB_USER = "ankitojha15";
 
 let ALL_PROJECTS = [];
@@ -80,6 +80,7 @@ async function init() {
     document.getElementById("aboutBio").textContent = profile.bio;
     document.getElementById("footName").textContent = profile.name;
     document.getElementById("navGithub").href = profile.github;
+    document.getElementById("moreGithub").href = `${profile.github}?tab=repositories`;
     document.getElementById("resumeBtn").href =
       `mailto:${profile.email}?subject=${encodeURIComponent("Resume request for " + profile.name)}&body=${encodeURIComponent("Hi Ankit, please share your resume.")}`;
     document.getElementById("heroMeta").innerHTML =
@@ -116,26 +117,26 @@ async function init() {
         `<div><b>${s.totalSolved ?? 0}</b>Total</div><div><b>${s.easy ?? 0}</b>Easy</div><div><b>${s.medium ?? 0}</b>Medium</div><div><b>${s.hard ?? 0}</b>Hard</div>`;
       document.getElementById("dsaLinks").innerHTML = (dsadata.profiles || [])
         .filter(p => p.url).map(p => `<a class="chip" href="${p.url}" target="_blank" rel="noopener"><b>${p.label}</b> ↗</a>`).join("")
-        || `<span class="chip">data/dsa.json me apne profile links bharo</span>`;
+        || `<span class="chip">Add your profile links in data/dsa.json</span>`;
     }
 
     // Projects + GitHub auto-sync
     renderFilters(pdata.categories || ["All"]);
-    status.textContent = "● GitHub se live sync ho raha hai…";
+    status.textContent = "Syncing live data from GitHub…";
     const enriched = await Promise.all((pdata.projects || []).map(async p => ({ p, gh: await syncGithub(p.repo) })));
     const liveCount = enriched.filter(e => e.gh.stars !== null).length;
     ALL_PROJECTS = enriched;
     renderProjects();
     status.textContent = liveCount > 0
-      ? `● Live from GitHub (${liveCount}/${enriched.length} synced)`
-      : "● GitHub API busy — local data shown";
+      ? `Live from GitHub (${liveCount}/${enriched.length} synced)`
+      : "Showing saved data — GitHub API is busy right now";
     status.className = "sync " + (liveCount > 0 ? "ok" : "warn");
 
     // Reveal animation
     const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("show")), { threshold: .1 });
     document.querySelectorAll(".reveal").forEach(el => io.observe(el));
   } catch (err) {
-    status.textContent = "● data files load nahi hue — `python3 -m http.server` se kholo (file:// pe fetch block hota hai)";
+    status.textContent = "Could not load site data — please serve over HTTP (e.g. python3 -m http.server) instead of file://";
     status.className = "sync warn";
     console.error(err);
   }
