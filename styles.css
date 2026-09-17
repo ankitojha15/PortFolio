@@ -59,11 +59,8 @@ code{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:8px;font-fam
 .card h3{font-size:1rem;margin-bottom:8px}
 .card p{color:var(--muted);font-size:.92rem}
 
-/* FILTERS + GRID */
-.filters{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
-.fbtn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:8px 16px;cursor:pointer;font-weight:600;font-size:.85rem}
-.fbtn.active,.fbtn:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:6px}
+/* PROJECT GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:18px}
 .proj{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:12px;transition:.2s}
 .proj:hover{transform:translateY(-4px);border-color:rgba(124,108,246,.6)}
 .proj.feat{border-color:rgba(124,108,246,.45)}

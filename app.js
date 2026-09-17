@@ -3,7 +3,6 @@ const SHOW_DSA = false; // Set to true to enable the DSA section (also fill in d
 const GITHUB_USER = "ankitojha15";
 
 let ALL_PROJECTS = [];
-let ACTIVE_FILTER = "All";
 
 async function loadJSON(path) {
   const r = await fetch(path);
@@ -44,22 +43,9 @@ function projCard(p, gh) {
   </article>`;
 }
 
-function renderFilters(cats) {
-  const box = document.getElementById("filters");
-  box.innerHTML = "";
-  cats.forEach(c => {
-    const b = document.createElement("button");
-    b.className = "fbtn" + (c === ACTIVE_FILTER ? " active" : "");
-    b.textContent = c;
-    b.onclick = () => { ACTIVE_FILTER = c; renderFilters(cats); renderProjects(); };
-    box.appendChild(b);
-  });
-}
-
 function renderProjects() {
   const grid = document.getElementById("projectGrid");
-  const list = ALL_PROJECTS.filter(p => ACTIVE_FILTER === "All" || p.category === ACTIVE_FILTER);
-  grid.innerHTML = list.map(p => projCard(p.p, p.gh)).join("");
+  grid.innerHTML = ALL_PROJECTS.map(p => projCard(p.p, p.gh)).join("");
 }
 
 async function init() {
@@ -121,7 +107,6 @@ async function init() {
     }
 
     // Projects + GitHub auto-sync
-    renderFilters(pdata.categories || ["All"]);
     status.textContent = "Syncing live data from GitHub…";
     const enriched = await Promise.all((pdata.projects || []).map(async p => ({ p, gh: await syncGithub(p.repo) })));
     const liveCount = enriched.filter(e => e.gh.stars !== null).length;
