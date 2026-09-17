@@ -1,3 +1,18 @@
+// ===== Theme toggle (dark default, choice remembered) =====
+try {
+  const themeBtn = document.getElementById("themeBtn");
+  const applyTheme = t => {
+    document.documentElement.dataset.theme = t;
+    themeBtn.textContent = t === "light" ? "🌙" : "☀️";
+  };
+  applyTheme(localStorage.getItem("theme") || "dark");
+  themeBtn.onclick = () => {
+    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    localStorage.setItem("theme", next);
+    applyTheme(next);
+  };
+} catch { /* private mode etc. — stay on dark theme */ }
+
 // ===== CONFIG: future scope toggles =====
 const SHOW_DSA = false; // Set to true to enable the DSA section (also fill in data/dsa.json)
 const GITHUB_USER = "ankitojha15";
