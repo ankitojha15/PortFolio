@@ -80,6 +80,8 @@ async function init() {
     document.getElementById("aboutBio").textContent = profile.bio;
     document.getElementById("footName").textContent = profile.name;
     document.getElementById("navGithub").href = profile.github;
+    document.getElementById("resumeBtn").href =
+      `mailto:${profile.email}?subject=${encodeURIComponent("Resume request for " + profile.name)}&body=${encodeURIComponent("Hi Ankit, please share your resume.")}`;
     document.getElementById("heroMeta").innerHTML =
       `<a class="chip" href="${profile.github}" target="_blank" rel="noopener">GitHub ↗</a>
        <a class="chip" href="${profile.linkedin}" target="_blank" rel="noopener">LinkedIn ↗</a>
