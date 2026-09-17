@@ -31,6 +31,7 @@ code{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:8px;font-fam
 .btn:hover{transform:translateY(-2px);border-color:var(--acc)}
 .btn-primary{background:linear-gradient(135deg,var(--acc),#5a4de0);border:none}
 .btn-small{padding:8px 14px;font-size:.85rem}
+.btn.is-disabled{opacity:.5;pointer-events:none;transform:none}
 
 /* HERO */
 .hero{max-width:var(--max);margin:0 auto;padding:90px 24px 40px;text-align:center}

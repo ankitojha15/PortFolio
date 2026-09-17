@@ -67,8 +67,19 @@ async function init() {
     document.getElementById("footName").textContent = profile.name;
     document.getElementById("navGithub").href = profile.github;
     document.getElementById("moreGithub").href = `${profile.github}?tab=repositories`;
-    document.getElementById("resumeBtn").href =
-      `mailto:${profile.email}?subject=${encodeURIComponent("Resume request for " + profile.name)}&body=${encodeURIComponent("Hi Ankit, please share your resume.")}`;
+    // Resume download: enabled only when assets/resume.pdf exists in the repo.
+    try {
+      const rr = await fetch("assets/resume.pdf", { method: "HEAD" });
+      if (!rr.ok) throw new Error("no resume yet");
+    } catch {
+      const rb = document.getElementById("resumeBtn");
+      rb.removeAttribute("href");
+      rb.removeAttribute("download");
+      rb.textContent = "Resume coming soon";
+      rb.classList.add("is-disabled");
+      document.getElementById("resumeNote").textContent =
+        "Resume is being updated — use the contact form below and I'll send it over.";
+    }
     document.getElementById("heroMeta").innerHTML =
       `<a class="chip" href="${profile.github}" target="_blank" rel="noopener">GitHub ↗</a>
        <a class="chip" href="${profile.linkedin}" target="_blank" rel="noopener">LinkedIn ↗</a>

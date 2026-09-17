@@ -42,7 +42,7 @@ Add one entry to the `projects` array in `data/projects.json`:
 
 ## Resume
 
-The Resume section currently points to a request-via-email link. To offer a direct download instead, drop your PDF at `assets/resume.pdf` and link it from the Resume section in `index.html`.
+Drop your PDF at `assets/resume.pdf` — the Download button enables itself automatically (the site checks whether the file exists). Until then it shows "Resume coming soon".
 
 ## Contact details
 
