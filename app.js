@@ -1,0 +1,139 @@
+// ===== CONFIG: future scope toggles =====
+const SHOW_DSA = false; // DSA chahiye to true kar do + data/dsa.json bharo
+const GITHUB_USER = "ankitojha15";
+
+let ALL_PROJECTS = [];
+let ACTIVE_FILTER = "All";
+
+async function loadJSON(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error("Failed: " + path);
+  return r.json();
+}
+
+// GitHub live sync: stars + push date + description fallback.
+// Site redeploy ke bina update hota hai. Rate-limit/fail -> local JSON fallback.
+async function syncGithub(repo) {
+  try {
+    const r = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${repo}`);
+    if (!r.ok) throw new Error("gh " + r.status);
+    const d = await r.json();
+    return {
+      stars: d.stargazers_count ?? null,
+      pushed: d.pushed_at ? d.pushed_at.slice(0, 10) : null,
+      ghDesc: d.description || null,
+      url: d.html_url,
+    };
+  } catch { return { stars: null, pushed: null, ghDesc: null, url: `https://github.com/${GITHUB_USER}/${repo}` }; }
+}
+
+function projCard(p, gh) {
+  const stars = gh.stars !== null ? `⭐ ${gh.stars}` : "⭐ —";
+  const pushed = gh.pushed ? `<span class="push">pushed ${gh.pushed}</span>` : "";
+  const desc = p.description || gh.ghDesc || "";
+  const demo = p.demoUrl
+    ? `<a href="${p.demoUrl}" target="_blank" rel="noopener">Live Demo ↗</a>` : "";
+  return `<article class="proj ${p.featured ? "feat" : ""} reveal show">
+    <div class="proj-top"><div class="badges">${(p.badges || []).map(b => `<span>${b}</span>`).join("")}</div><span class="stars">${stars}</span></div>
+    <h3>${p.title}</h3><p class="tag">${p.tagline || ""}</p>
+    <p class="desc">${desc}</p>
+    <ul>${(p.highlights || []).map(h => `<li>${h}</li>`).join("")}</ul>
+    <div class="tech">${(p.tech || []).map(t => `<span>${t}</span>`).join("")}</div>
+    <div class="proj-links"><a href="${gh.url}" target="_blank" rel="noopener">GitHub ↗</a>${demo}</div>
+    ${pushed}
+  </article>`;
+}
+
+function renderFilters(cats) {
+  const box = document.getElementById("filters");
+  box.innerHTML = "";
+  cats.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "fbtn" + (c === ACTIVE_FILTER ? " active" : "");
+    b.textContent = c;
+    b.onclick = () => { ACTIVE_FILTER = c; renderFilters(cats); renderProjects(); };
+    box.appendChild(b);
+  });
+}
+
+function renderProjects() {
+  const grid = document.getElementById("projectGrid");
+  const list = ALL_PROJECTS.filter(p => ACTIVE_FILTER === "All" || p.category === ACTIVE_FILTER);
+  grid.innerHTML = list.map(p => projCard(p.p, p.gh)).join("");
+}
+
+async function init() {
+  document.getElementById("year").textContent = new Date().getFullYear();
+  const status = document.getElementById("syncStatus");
+
+  try {
+    const [profile, pdata, dsadata] = await Promise.all([
+      loadJSON("data/profile.json"), loadJSON("data/projects.json"), loadJSON("data/dsa.json").catch(() => null),
+    ]);
+
+    // Hero + about + contact
+    document.getElementById("navName").textContent = profile.name.split(" ").slice(0, 2).join(" ");
+    document.getElementById("heroName").textContent = profile.name;
+    document.getElementById("heroRole").textContent = profile.role;
+    document.getElementById("heroTagline").textContent = profile.tagline;
+    document.getElementById("availability").textContent = profile.availability;
+    document.getElementById("aboutBio").textContent = profile.bio;
+    document.getElementById("footName").textContent = profile.name;
+    document.getElementById("navGithub").href = profile.github;
+    document.getElementById("heroMeta").innerHTML =
+      `<a class="chip" href="${profile.github}" target="_blank" rel="noopener">GitHub ↗</a>
+       <a class="chip" href="${profile.linkedin}" target="_blank" rel="noopener">LinkedIn ↗</a>
+       <a class="chip" href="mailto:${profile.email}">✉️ ${profile.email}</a>
+       <span class="chip">📍 ${profile.location}</span>`;
+    document.getElementById("contactCards").innerHTML =
+      `<div class="card"><h3>✉️ Email</h3><p><a href="mailto:${profile.email}">${profile.email}</a></p></div>
+       <div class="card"><h3>💼 LinkedIn</h3><p><a href="${profile.linkedin}" target="_blank" rel="noopener">linkedin.com/in/ankitojha15</a></p></div>
+       <div class="card"><h3>🐙 GitHub</h3><p><a href="${profile.github}" target="_blank" rel="noopener">github.com/${profile.githubUsername}</a></p></div>`;
+    document.getElementById("contactForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const n = document.getElementById("cfName").value.trim();
+      const m = document.getElementById("cfMsg").value.trim();
+      window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent("Opportunity for " + profile.name + " — from " + n)}&body=${encodeURIComponent(m)}`;
+    });
+
+    // Skills (dsa.json doubles as skills store for now)
+    const skills = dsadata || {};
+    document.getElementById("skillsGrid").innerHTML =
+      `<div class="card"><h3>🤖 AI / LLM</h3><p>${(skills.ai || []).join(" · ")}</p></div>
+       <div class="card"><h3>🔧 Backend & Data</h3><p>${(skills.backend || []).join(" · ")}</p></div>
+       <div class="card"><h3>💻 Languages</h3><p>${(skills.languages || []).join(" · ")}</p></div>`;
+
+    // DSA future scope
+    if (SHOW_DSA && dsadata && dsadata.enabled !== false) {
+      document.getElementById("dsa").hidden = false;
+      document.getElementById("navDsa").hidden = false;
+      const s = dsadata.stats || {};
+      document.getElementById("dsaStats").innerHTML =
+        `<div><b>${s.totalSolved ?? 0}</b>Total</div><div><b>${s.easy ?? 0}</b>Easy</div><div><b>${s.medium ?? 0}</b>Medium</div><div><b>${s.hard ?? 0}</b>Hard</div>`;
+      document.getElementById("dsaLinks").innerHTML = (dsadata.profiles || [])
+        .filter(p => p.url).map(p => `<a class="chip" href="${p.url}" target="_blank" rel="noopener"><b>${p.label}</b> ↗</a>`).join("")
+        || `<span class="chip">data/dsa.json me apne profile links bharo</span>`;
+    }
+
+    // Projects + GitHub auto-sync
+    renderFilters(pdata.categories || ["All"]);
+    status.textContent = "● GitHub se live sync ho raha hai…";
+    const enriched = await Promise.all((pdata.projects || []).map(async p => ({ p, gh: await syncGithub(p.repo) })));
+    const liveCount = enriched.filter(e => e.gh.stars !== null).length;
+    ALL_PROJECTS = enriched;
+    renderProjects();
+    status.textContent = liveCount > 0
+      ? `● Live from GitHub (${liveCount}/${enriched.length} synced)`
+      : "● GitHub API busy — local data shown";
+    status.className = "sync " + (liveCount > 0 ? "ok" : "warn");
+
+    // Reveal animation
+    const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("show")), { threshold: .1 });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  } catch (err) {
+    status.textContent = "● data files load nahi hue — `python3 -m http.server` se kholo (file:// pe fetch block hota hai)";
+    status.className = "sync warn";
+    console.error(err);
+  }
+}
+init();

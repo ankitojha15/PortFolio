@@ -1,0 +1,12 @@
+Ankit Kumar Ojha — AI Engineer (Fresher)
+==========================================
+PLACEHOLDER: apna real resume is naam se rakho -> assets/resume.pdf
+Uske baad site ka "Download Resume" button auto kaam karega.
+
+Resume me ye rakhna (1 page):
+- Name, Email (ankitojha2004@gmail.com), GitHub, LinkedIn, Location (India)
+- Skills: Python, SQL, FastAPI, LangChain, LangGraph, FAISS, Postgres, Redis, Docker
+- Projects (2-3 with live link + 1 eval number each):
+  * Veritas AI — hybrid RAG with citations + 60 golden evals — live demo link
+  * QueryPilot / DriftGuard AI — agent + guardrails + deployment — live API link
+- Education + DSA practice (jab start karo)
