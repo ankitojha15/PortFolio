@@ -92,8 +92,10 @@ async function init() {
     document.getElementById("contactForm").addEventListener("submit", e => {
       e.preventDefault();
       const n = document.getElementById("cfName").value.trim();
+      const from = document.getElementById("cfEmail").value.trim();
       const m = document.getElementById("cfMsg").value.trim();
-      window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent("Opportunity for " + profile.name + " — from " + n)}&body=${encodeURIComponent(m)}`;
+      const body = `Name: ${n}\nEmail: ${from}\n\n${m}`;
+      window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent("Opportunity for " + profile.name + " — from " + n)}&body=${encodeURIComponent(body)}`;
     });
 
     // Skills (dsa.json doubles as skills store for now)
