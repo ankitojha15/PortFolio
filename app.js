@@ -98,12 +98,16 @@ async function init() {
       window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent("Opportunity for " + profile.name + " — from " + n)}&body=${encodeURIComponent(body)}`;
     });
 
-    // Skills (dsa.json doubles as skills store for now)
+    // Skills (groups come from data/dsa.json, synced with the resume)
     const skills = dsadata || {};
-    document.getElementById("skillsGrid").innerHTML =
-      `<div class="card"><h3>🤖 AI / LLM</h3><p>${(skills.ai || []).join(" · ")}</p></div>
-       <div class="card"><h3>🔧 Backend & Data</h3><p>${(skills.backend || []).join(" · ")}</p></div>
-       <div class="card"><h3>💻 Languages</h3><p>${(skills.languages || []).join(" · ")}</p></div>`;
+    const groups = skills.skillGroups || [
+      { title: "🤖 AI / LLM", items: skills.ai || [] },
+      { title: "🔧 Backend & Data", items: skills.backend || [] },
+      { title: "💻 Languages", items: skills.languages || [] },
+    ];
+    document.getElementById("skillsGrid").innerHTML = groups
+      .map(g => `<div class="card"><h3>${g.title}</h3><p>${(g.items || []).join(" · ")}</p></div>`)
+      .join("");
 
     // DSA future scope
     if (SHOW_DSA && dsadata && dsadata.enabled !== false) {
