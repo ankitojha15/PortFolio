@@ -1,39 +1,49 @@
-# Ankit Ojha — Portfolio (dark minimal, static)
+# Ankit Ojha — Portfolio
 
-Static site hai — koi build step nahi. `index.html` kholo ya deploy karo. GitHub repos ko **touch nahi karta**.
+Live: **https://ankitojha15.github.io/PortFolio/**
+
+A dark, minimal, static portfolio. No build step, no dependencies — just open `index.html` via a local server or deploy the folder as-is.
 
 ## Run locally
-`file://` pe JSON fetch block hota hai, isliye server se kholo:
+
+Browsers block JSON `fetch` on `file://`, so serve the folder:
+
 ```bash
 python3 -m http.server 8000
-# fir http://localhost:8000 kholo (ankit-portfolio folder se)
+# then open http://localhost:8000
 ```
 
-## Deploy (free, 2 min)
-- **Vercel:** vercel.com → Add New Project → is folder ko drag-drop / GitHub pe naya repo `portfolio` bana ke import → auto live.
-- **Netlify / GitHub Pages:** same folder upload karo, kuch build command nahi.
+## Deploy
 
-## ➕ Naya project add karna (1 min, site code mat chhedo)
-`data/projects.json` me entry daalo:
+- **GitHub Pages:** repo → Settings → Pages → Branch `main`, folder `/ (root)` → Save.
+- **Vercel / Netlify:** import the repo, no build command needed.
+
+## Add a new project (1 minute, no site code changes)
+
+Add one entry to the `projects` array in `data/projects.json`:
+
 ```json
-{"repo": "Naya-Repo-Name", "title": "Title", "tagline": "1 line",
- "description": "2 lines", "category": "RAG",
+{"repo": "Repo-Name", "title": "Title", "tagline": "One line",
+ "description": "Two lines", "category": "RAG",
  "tech": ["Python", "FastAPI"], "badges": ["Live Demo"],
  "highlights": ["point 1", "point 2"],
- "demoUrl": "https://... (ho to, nahi to \"\")", "featured": false}
+ "demoUrl": "https://... (or empty string)", "featured": false}
 ```
-Category `categories` list me bhi add karna (filter pill ke liye).
 
-## 🔄 GitHub auto-update kaise kaam karta hai?
-- ⭐ Stars, push-date, repo link: **auto-sync** via `api.github.com` har page-load pe. GitHub pe update karo → site pe auto dikhega.
-- Title/description/highlights/tech: `projects.json` se aate hai (curated case-study). GitHub README badalne se ye auto nahi badlenge — taaki site ka content stable rahe. Chaho to `description` khali chhodo → GitHub description auto use hoga.
+## How GitHub auto-sync works
 
-## DSA section (abhi hidden — future scope ready)
-1. `data/dsa.json` me `enabled: true` + stats + profile links bharo.
-2. `app.js` me `SHOW_DSA = true` karo. Bas — nav + section auto aa jayega.
+- ⭐ Stars, push dates and repo links sync live from `api.github.com` on every page load. Update GitHub and the site reflects it — no redeploy needed. If the API is rate-limited, the site falls back to saved data.
+- Titles, descriptions, highlights and tech come from `projects.json` (curated case studies), so site copy stays stable when a repo README changes. Leave `description` empty to fall back to the GitHub repo description.
+
+## DSA section (hidden by default, ready for later)
+
+1. Set `enabled: true` in `data/dsa.json` and fill in your stats and profile links.
+2. Set `SHOW_DSA = true` in `app.js`. The nav link and section appear automatically.
 
 ## Resume
-Apna PDF `assets/resume.pdf` naam se rakho (abhi placeholder `.txt` hai). Button auto kaam karega.
+
+The Resume section currently points to a request-via-email link. To offer a direct download instead, drop your PDF at `assets/resume.pdf` and link it from the Resume section in `index.html`.
 
 ## Contact details
-`data/profile.json` me email/GitHub/LinkedIn/location hai. Phone add nahi kiya (tumne diya nahi) — chahiye to bata dena.
+
+Email, GitHub, LinkedIn and location live in `data/profile.json`. No phone number is listed.
