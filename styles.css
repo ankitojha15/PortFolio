@@ -85,7 +85,12 @@ code{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:8px;font-fam
 .push{font-size:.75rem;color:var(--muted)}
 .hint{margin-top:18px;color:var(--muted);font-size:.85rem}
 
-/* DSA */
+/* TIMELINE */
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:18px}
+.t-item{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.t-year{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:.78rem;font-weight:700;color:var(--acc2);background:rgba(56,214,196,.1);border:1px solid rgba(56,214,196,.35);padding:3px 12px;border-radius:999px;margin-bottom:10px}
+.t-item h3{font-size:1rem;margin-bottom:6px}
+.t-item p{color:var(--muted);font-size:.9rem}
 .dsa-box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:14px}
 .dsa-stats{display:flex;gap:12px;flex-wrap:wrap}
 .dsa-stats div{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 18px;text-align:center}
