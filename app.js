@@ -154,28 +154,6 @@ async function init() {
         `<div><b>${ghRepos.length || "—"}</b><span>Public repos</span></div><div><b>${ALL_PROJECTS.length}</b><span>Featured projects</span></div><div><b>${demos}</b><span>Live demos</span></div>`;
     } catch { /* keep the hero clean if rendering fails */ }
 
-    // Auto "More from GitHub": every other public repo, newest first.
-    // New repos appear here on their own — no site edits needed.
-    try {
-      const featured = new Set(ALL_PROJECTS.map(e => e.p.repo.toLowerCase()));
-      featured.add("portfolio");
-      featured.add(GITHUB_USER.toLowerCase());
-      const rest = ghRepos
-        .filter(r => !r.fork && !featured.has((r.name || "").toLowerCase()))
-        .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
-      document.getElementById("autoGrid").innerHTML = rest.map(r => `
-        <article class="proj reveal show">
-          <div class="proj-top"><span class="stars">⭐ ${r.stargazers_count ?? 0}</span><span class="push">${(r.pushed_at || "").slice(0, 10)}</span></div>
-          <h3>${r.name}</h3>
-          <p class="desc">${r.description || "No description yet."}</p>
-          <div class="tech">${r.language ? `<span>${r.language}</span>` : ""}</div>
-          <div class="proj-links"><a href="${r.html_url}" target="_blank" rel="noopener">GitHub ↗</a></div>
-        </article>`).join("") || `<p class="lede">Everything is featured above.</p>`;
-      const autoStatus = document.getElementById("autoStatus");
-      autoStatus.textContent = ghRepos.length ? `Auto-synced (${rest.length} repos)` : "GitHub API is busy right now";
-      autoStatus.className = "sync " + (ghRepos.length ? "ok" : "warn");
-    } catch { /* grid simply stays empty */ }
-
     // Reveal animation
     const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("show")), { threshold: .1 });
     document.querySelectorAll(".reveal").forEach(el => io.observe(el));
