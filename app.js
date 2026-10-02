@@ -90,7 +90,7 @@ async function init() {
        <span class="chip">📍 ${profile.location}</span>`;
     document.getElementById("contactCards").innerHTML =
       `<div class="card"><h3>✉️ Email</h3><p><a href="mailto:${profile.email}">${profile.email}</a></p></div>
-       <div class="card"><h3>💼 LinkedIn</h3><p><a href="${profile.linkedin}" target="_blank" rel="noopener">linkedin.com/in/ankitojha15</a></p></div>
+       <div class="card"><h3>💼 LinkedIn</h3><p><a href="${profile.linkedin}" target="_blank" rel="noopener">www.linkedin.com/in/ankit-kumar-ojha-02a937242</a></p></div>
        <div class="card"><h3>🐙 GitHub</h3><p><a href="${profile.github}" target="_blank" rel="noopener">github.com/${profile.githubUsername}</a></p></div>`;
     document.getElementById("contactForm").addEventListener("submit", e => {
       e.preventDefault();
